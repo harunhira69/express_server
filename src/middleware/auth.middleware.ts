@@ -13,6 +13,7 @@ export const auth = async (
   next: NextFunction
 ) => {
   try {
+     console.log("Authorization Header:", req.headers.authorization);
     const token =
       req.headers.authorization;
 
@@ -29,7 +30,7 @@ export const auth = async (
       token,
       config.jwt_secret as string
     );
-
+       console.log("Decoded User:", decoded);
     // attach user
     (req as any).user = decoded;
 

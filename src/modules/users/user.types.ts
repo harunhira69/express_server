@@ -6,7 +6,7 @@ export type Users = {
     name:string,
     email:string,
     password:string,
-    role:Role,
-    created_at:Date,
-    updated_at:Date
+    role?:Role,
+    created_at?:Date,
+    updated_at?:Date
 }

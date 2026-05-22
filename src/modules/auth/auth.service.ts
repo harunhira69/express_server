@@ -1,7 +1,8 @@
 import bcrypt from "bcryptjs";
 import { pool } from "../../db";
 import type { Users } from "../users/user.types";
-
+import jwt from "jsonwebtoken"
+import config from "../../config";
 const loginUserIntoDB = async(payload:
     {email:string,password:string}
 )=>{
@@ -15,11 +16,38 @@ const loginUserIntoDB = async(payload:
     }
 
       const user = userData.rows[0];
-    console.log(user)
+    // console.log(user)
     const matchPassword = await bcrypt.compare(password,user.password);
     if(!matchPassword){
           throw new Error("Invalid Credential")
     }
+
+
+    // generate jwt token
+   const jwtpayload = {
+    id:user.id,
+    name:user.name,
+    email:user.email,
+    role:user.role,
+  
+
+   }
+
+   const token = jwt.sign(jwtpayload,config.jwt_secret as string,{expiresIn:"1d"})
+   return {
+    token,
+    user:{
+          id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+    }
+   };
+
+
+
 
 
 }

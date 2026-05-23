@@ -6,6 +6,7 @@ import type {
 
 import jwt from "jsonwebtoken";
 import config from "../config";
+import type { JwtUserPayload } from "../types";
 
 export const auth = async (
   req: Request,
@@ -29,10 +30,9 @@ export const auth = async (
     const decoded = jwt.verify(
       token,
       config.jwt_secret as string
-    );
-       console.log("Decoded User:", decoded);
-    // attach user
-    (req as any).user = decoded;
+    ) as JwtUserPayload;
+    
+ 
 
     next();
   } catch (error) {

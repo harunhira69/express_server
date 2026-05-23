@@ -1,13 +1,14 @@
 import type { NextFunction, Request, Response } from "express";
 import type { Role } from "../modules/users/user.types";
+import type { RequestWithUser } from "../types";
 
 const authorize = (...roles: Role[]) => {
   return (
-    req: Request,
+    req: RequestWithUser,
     res: Response,
     next: NextFunction
   ) => {
-    const user = (req as any).user;
+    const user = req.user;
 
     if (!user) {
       return res.status(401).json({

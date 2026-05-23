@@ -7,8 +7,8 @@ const router = Router();
 router.post('/issues',auth, userIssueController.issueController)
 router.get('/issues/:id',userIssueController.getSingleIssue)
 router.patch('/issues/:id',
-authorize("contributor", "maintainer"),
 auth,
+authorize("contributor", "maintainer"),
 userIssueController.updateIssue)
 router.delete('/issues/:id',
 auth,

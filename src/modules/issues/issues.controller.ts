@@ -1,9 +1,10 @@
 import type { Request, Response } from "express";
 import { issueService } from "./issues.service";
 import asyncHandler from "../../utility/asyncHandler";
+import type { AppError, RequestWithUser } from "../../types";
 
 const issueController =asyncHandler(
-async(req:Request,res:Response)=>{
+async(req:RequestWithUser,res:Response)=>{
 
 
 
@@ -11,22 +12,26 @@ async(req:Request,res:Response)=>{
 
         // field validation
         if(!title || !description|| !type){
-           const error: any = new Error("All Field are required");
-           error.statusCode = 400;
-           throw error
+          const error = new Error(
+    "All Field are required"
+  ) as AppError;
+
+  error.statusCode = 400;
+
+  throw error;
         }
         // title validation
         if(title.length>150){
-          const error: any = new Error("Title maximum length is 150");
+          const error = new Error("Title maximum length is 150") as AppError;
            error.statusCode = 400;
            throw error
         }
         // description validation
         if(description.length<20){
-   const error: any =
+   const error =
         new Error(
           "Description minimum length is 20"
-        );
+        ) as AppError;
 
       error.statusCode = 400;
 
@@ -34,18 +39,18 @@ async(req:Request,res:Response)=>{
         }
         // type validation
         if(!['bug','feature_request'].includes(type)){
-            const error: any =
+            const error =
         new Error(
           "Invalid issue type"
-        );
+        ) as AppError;
 
       error.statusCode = 400;
 
       throw error;
         
         }
-            // reporter id from jwt middleware
-          const reporter_id = (req as any).user.id;
+
+          const reporter_id = req.user.id;
      
 
         const result =
@@ -69,13 +74,13 @@ const getSingleIssue = asyncHandler(
         const {id}= req.params;
 
         if(isNaN(Number(id))){
-        const error:any = new Error("Invalid issue id")
+        const error = new Error("Invalid issue id") as AppError
         error.statusCode = 400
         throw error
     }
     const result = await issueService.getSingleIssueFromDB(Number(id))
     if(!result){
-        const error:any = new Error("Issue Not Found")
+        const error = new Error("Issue Not Found") as AppError
         error.statusCode = 404
         throw error 
     }
@@ -88,20 +93,20 @@ const getSingleIssue = asyncHandler(
 )
 // update issue
 const updateIssue = asyncHandler(
-    async(req:Request,res:Response)=>{
+    async(req:RequestWithUser,res:Response)=>{
      const {id} = req.params;
 
-      const user = (req as any).user
+      const user = req.user
 
     //   check id
         if(isNaN(Number(id))){
-        const error:any = new Error("Invalid issue id")
+        const error = new Error("Invalid issue id") as AppError
         error.statusCode = 400
         throw error
     }
     const result =await issueService.getIssueRowFromDB(Number(id))
     if(!result){
-        const error:any = new Error("Issue Not Found")
+        const error = new Error("Issue Not Found") as AppError
         error.statusCode = 404
         throw error
 
@@ -111,21 +116,21 @@ const updateIssue = asyncHandler(
 
  if(user.role === "contributor"){
         if(result.reporter_id !== user.id){
-            const error:any = new Error("You can only update your own issues")
+            const error = new Error("You can only update your own issues") as AppError
             error.statusCode = 403
             throw error
         }
         if(result.status !== "open"){
-            const error:any = new Error("You can only update issues with open status")
+            const error = new Error("You can only update issues with open status") as AppError
             error.statusCode = 409
             throw error
         }
     }
  
     const {title,description,type} = req.body
-     // type pathale validate koro
+  
     if(type && !["bug","feature_request"].includes(type)){
-        const error:any = new Error("Invalid issue type")
+        const error = new Error("Invalid issue type") as AppError
         error.statusCode = 400
         throw error
     }
@@ -146,39 +151,25 @@ const updateIssue = asyncHandler(
 // delete issue
 
 const deleteIssue = asyncHandler(
-  async (req: Request, res: Response) => {
+  async (req: RequestWithUser, res: Response) => {
     const { id } = req.params;
 
-    const user = (req as any).user;
+    const user = req.user;
 
     // id validation
     if (isNaN(Number(id))) {
-      const error: any = new Error("Invalid issue id");
+      const error = new Error("Invalid issue id") as AppError;
       error.statusCode = 400;
       throw error;
     }
 
-    // issue exists?
+    // issue exists
     const issueResult =
       await issueService.getIssueRowFromDB(Number(id));
 
     if (!issueResult) {
-      const error: any = new Error("Issue not found");
+      const error = new Error("Issue not found") as AppError;
       error.statusCode = 404;
-      throw error;
-    }
-
-    // contributor can delete only own issue
-    if (
-      user.role === "contributor" &&
-      issueResult.reporter_id !== user.id
-    ) {
-      const error: any =
-        new Error(
-          "You can only delete your own issues"
-        );
-
-      error.statusCode = 403;
       throw error;
     }
 

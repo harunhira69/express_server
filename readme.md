@@ -2,9 +2,6 @@
 
 > A collaborative backend API for software teams to report bugs, suggest features, and coordinate resolutions.
 
-[![Node.js](https://img.shields.io/badge/Node.js-LTS-339933?logo=node.js&logoColor=white)](https://nodejs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Raw_SQL-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org)
 
 **Live:** https://express-server-beryl-delta.vercel.app/ &nbsp;|&nbsp; **GitHub:** https://github.com/harunhira69/express_server
 
@@ -30,7 +27,7 @@
 | **TypeScript** | Strict mode, no `any` |
 | **Express.js** | Modular router architecture |
 | **PostgreSQL** | Native `pg` driver, raw SQL only |
-| **bcryptjs** | Password hashing — salt rounds: 10 |
+| **bcrypt** | Password hashing — salt rounds: 10 |
 | **jsonwebtoken** | JWT-based authentication |
 | **http-status-codes** | Consistent HTTP status codes |
 

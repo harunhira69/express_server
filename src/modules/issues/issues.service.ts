@@ -1,7 +1,8 @@
 import { pool } from "../../db";
-import type { IssueType } from "./issues.type";
+import type { CreateIssue } from "./issues.type";
+i
 
-const createIssueIntoDB = async(payload:IssueType)=>{
+const createIssueIntoDB = async(payload:CreateIssue)=>{
 
     const {title,description,type,reporter_id} =payload;
     const result = await pool.query(`
@@ -69,6 +70,7 @@ const result = await pool.query(`
   title = COALESCE($1,title),
   description = COALESCE($2,description),
   type = COALESCE($3,type),
+  status = 'in_progress',
   updated_at = NOW() WHERE id = $4
   RETURNING *
 

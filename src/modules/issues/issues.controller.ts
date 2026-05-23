@@ -3,8 +3,8 @@ import { issueService } from "./issues.service";
 import asyncHandler from "../../utility/asyncHandler";
 import type { AppError} from "../../types";
 import { StatusCodes } from "http-status-codes";
-import { STATUS_CODES } from "node:http";
 
+// create isssue
 const issueController =asyncHandler(
 async(req:Request,res:Response)=>{
 
@@ -74,6 +74,32 @@ const reporter_id = req.user.id;
   })
 
 })
+
+// get issu by short,type
+const getALlIssue = asyncHandler(
+  async(req:Request,res:Response)=>{
+    const {sort="newest",type,status} = req.params as {
+      sort?:string,
+      type?:string,
+      status?:string
+    };
+
+    // validate sort
+    if(!['newest','oldest'].includes(sort)){
+      const error = new Error ('Invalid sort values') as AppError;
+       error.statusCode = StatusCodes.BAD_REQUEST;
+       throw error;
+    }
+    // type
+    if(   status &&
+      !["open", "in_progress", "resolved"].includes(status)){
+        const error = new Error ("Invalid Issue Status") as AppError;
+        error.statusCode = StatusCodes.BAD_REQUEST;
+        throw error
+      }
+  }
+)
+
 // get single issue
 const getSingleIssue = asyncHandler(
     async(req:Request,res:Response)=>{
@@ -103,7 +129,9 @@ const updateIssue = asyncHandler(
      const {id} = req.params;
 
    if (!req.user) {
-  throw new Error("Unauthorized");
+  const error = new Error("Unauthorized") as AppError;
+  error.statusCode = StatusCodes.UNAUTHORIZED;
+  throw error;
 }
 
 const user = req.user;

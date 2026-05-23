@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import { pool } from "../../db";
 import type { Users } from "../users/user.types";
 import jwt from "jsonwebtoken"

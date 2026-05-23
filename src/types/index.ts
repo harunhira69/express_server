@@ -4,7 +4,6 @@ import type { Role } from "../modules/users/user.types";
 export type JwtUserPayload = {
  id: number;
   name: string;
-  email: string;
   role: Role;
 }
 

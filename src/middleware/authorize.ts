@@ -4,24 +4,26 @@ import type { RequestWithUser } from "../types";
 
 const authorize = (...roles: Role[]) => {
   return (
-    req: RequestWithUser,
+    req: Request,
     res: Response,
     next: NextFunction
-  ) => {
+  ):void => {
     const user = req.user;
 
     if (!user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: "Unauthorized",
       });
+      return
     }
 
     if (!roles.includes(user.role)) {
-      return res.status(403).json({
+      res.status(403).json({
         success: false,
         message: "Forbidden Access",
       });
+      return
     }
 
     next();

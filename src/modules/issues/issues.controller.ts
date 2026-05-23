@@ -1,10 +1,12 @@
 import type { Request, Response } from "express";
 import { issueService } from "./issues.service";
 import asyncHandler from "../../utility/asyncHandler";
-import type { AppError, RequestWithUser } from "../../types";
+import type { AppError} from "../../types";
+import { StatusCodes } from "http-status-codes";
+import { STATUS_CODES } from "node:http";
 
 const issueController =asyncHandler(
-async(req:RequestWithUser,res:Response)=>{
+async(req:Request,res:Response)=>{
 
 
 
@@ -16,14 +18,14 @@ async(req:RequestWithUser,res:Response)=>{
     "All Field are required"
   ) as AppError;
 
-  error.statusCode = 400;
+  error.statusCode = StatusCodes.BAD_REQUEST;
 
   throw error;
         }
         // title validation
         if(title.length>150){
           const error = new Error("Title maximum length is 150") as AppError;
-           error.statusCode = 400;
+           error.statusCode = StatusCodes.BAD_REQUEST;
            throw error
         }
         // description validation
@@ -33,7 +35,7 @@ async(req:RequestWithUser,res:Response)=>{
           "Description minimum length is 20"
         ) as AppError;
 
-      error.statusCode = 400;
+      error.statusCode = StatusCodes.BAD_REQUEST;
 
       throw error;
         }
@@ -44,13 +46,17 @@ async(req:RequestWithUser,res:Response)=>{
           "Invalid issue type"
         ) as AppError;
 
-      error.statusCode = 400;
+      error.statusCode = StatusCodes.BAD_REQUEST;
 
       throw error;
         
         }
 
-          const reporter_id = req.user.id;
+         if (!req.user) {
+  throw new Error("Unauthorized");
+}
+
+const reporter_id = req.user.id;
      
 
         const result =
@@ -61,7 +67,7 @@ async(req:RequestWithUser,res:Response)=>{
     reporter_id,
   });
 
-  return res.status(201).json({
+  return res.status(StatusCodes.CREATED).json({
     success:true,
     message:"Issues created successfully",
     data:result
@@ -75,16 +81,16 @@ const getSingleIssue = asyncHandler(
 
         if(isNaN(Number(id))){
         const error = new Error("Invalid issue id") as AppError
-        error.statusCode = 400
+        error.statusCode = StatusCodes.BAD_REQUEST;
         throw error
     }
     const result = await issueService.getSingleIssueFromDB(Number(id))
     if(!result){
         const error = new Error("Issue Not Found") as AppError
-        error.statusCode = 404
+        error.statusCode = StatusCodes.NOT_FOUND;
         throw error 
     }
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
         success:true,
         data:result
     })
@@ -93,21 +99,25 @@ const getSingleIssue = asyncHandler(
 )
 // update issue
 const updateIssue = asyncHandler(
-    async(req:RequestWithUser,res:Response)=>{
+    async(req:Request,res:Response)=>{
      const {id} = req.params;
 
-      const user = req.user
+   if (!req.user) {
+  throw new Error("Unauthorized");
+}
+
+const user = req.user;
 
     //   check id
         if(isNaN(Number(id))){
         const error = new Error("Invalid issue id") as AppError
-        error.statusCode = 400
+        error.statusCode = StatusCodes.BAD_REQUEST;
         throw error
     }
     const result =await issueService.getIssueRowFromDB(Number(id))
     if(!result){
         const error = new Error("Issue Not Found") as AppError
-        error.statusCode = 404
+        error.statusCode = StatusCodes.NOT_FOUND;
         throw error
 
     }
@@ -117,12 +127,12 @@ const updateIssue = asyncHandler(
  if(user.role === "contributor"){
         if(result.reporter_id !== user.id){
             const error = new Error("You can only update your own issues") as AppError
-            error.statusCode = 403
+            error.statusCode = StatusCodes.FORBIDDEN;
             throw error
         }
         if(result.status !== "open"){
             const error = new Error("You can only update issues with open status") as AppError
-            error.statusCode = 409
+            error.statusCode = StatusCodes.CONFLICT;
             throw error
         }
     }
@@ -131,13 +141,13 @@ const updateIssue = asyncHandler(
   
     if(type && !["bug","feature_request"].includes(type)){
         const error = new Error("Invalid issue type") as AppError
-        error.statusCode = 400
+        error.statusCode = StatusCodes.BAD_REQUEST;
         throw error
     }
 
 
     const updateResult = await issueService.updateIssueIntoDb(Number(id),{title,description,type})
-      return res.status(200).json({
+      return res.status(StatusCodes.OK).json({
         success:true,
         message:"Issue updated successfully",
         data:updateResult
@@ -151,15 +161,19 @@ const updateIssue = asyncHandler(
 // delete issue
 
 const deleteIssue = asyncHandler(
-  async (req: RequestWithUser, res: Response) => {
+  async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    const user = req.user;
+   if (!req.user) {
+  throw new Error("Unauthorized");
+}
+
+const user = req.user;
 
     // id validation
     if (isNaN(Number(id))) {
       const error = new Error("Invalid issue id") as AppError;
-      error.statusCode = 400;
+      error.statusCode = StatusCodes.BAD_REQUEST;
       throw error;
     }
 
@@ -169,7 +183,7 @@ const deleteIssue = asyncHandler(
 
     if (!issueResult) {
       const error = new Error("Issue not found") as AppError;
-      error.statusCode = 404;
+      error.statusCode = StatusCodes.NOT_FOUND;
       throw error;
     }
 
@@ -177,7 +191,7 @@ const deleteIssue = asyncHandler(
       Number(id)
     );
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       success: true,
       message: "Issue deleted successfully",
     });

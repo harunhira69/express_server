@@ -6,7 +6,7 @@ import type {
 
 import jwt from "jsonwebtoken";
 import config from "../config";
-import type { JwtUserPayload } from "../types";
+import type { JwtUserPayload, RequestWithUser } from "../types";
 
 export const auth = async (
   req: Request,
@@ -32,7 +32,7 @@ export const auth = async (
       config.jwt_secret as string
     ) as JwtUserPayload;
     
- 
+      req.user = decoded;
 
     next();
   } catch (error) {

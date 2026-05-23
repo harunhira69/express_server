@@ -9,8 +9,8 @@ export type JwtUserPayload = {
 }
 
 export type RequestWithUser = Request & {
-  user:JwtUserPayload;
-}
+  user?: JwtUserPayload;
+};
 
 export interface AppError extends Error {
     statusCode?: number;

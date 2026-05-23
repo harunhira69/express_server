@@ -7,6 +7,7 @@ import type {
 import jwt from "jsonwebtoken";
 import config from "../config";
 import type { JwtUserPayload, RequestWithUser } from "../types";
+import { StatusCodes } from "http-status-codes";
 
 export const auth = async (
   req: Request,
@@ -14,13 +15,13 @@ export const auth = async (
   next: NextFunction
 ) => {
   try {
-     console.log("Authorization Header:", req.headers.authorization);
+    //  console.log("Authorization Header:", req.headers.authorization);
     const token =
       req.headers.authorization;
 
     // token check
     if (!token) {
-      return res.status(401).json({
+      return res.status(StatusCodes.UNAUTHORIZED).json({
         success: false,
         message: "Unauthorized Access",
       });
@@ -36,7 +37,7 @@ export const auth = async (
 
     next();
   } catch (error) {
-    return res.status(401).json({
+    return res.status(StatusCodes.UNAUTHORIZED).json({
       success: false,
       message: "Invalid Token",
     });

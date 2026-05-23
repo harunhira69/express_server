@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import type { Role } from "../modules/users/user.types";
 import type { RequestWithUser } from "../types";
+import { StatusCodes } from "http-status-codes";
 
 const authorize = (...roles: Role[]) => {
   return (
@@ -11,7 +12,7 @@ const authorize = (...roles: Role[]) => {
     const user = req.user;
 
     if (!user) {
-      res.status(401).json({
+      res.status(StatusCodes.UNAUTHORIZED).json({
         success: false,
         message: "Unauthorized",
       });
@@ -19,7 +20,7 @@ const authorize = (...roles: Role[]) => {
     }
 
     if (!roles.includes(user.role)) {
-      res.status(403).json({
+      res.status(StatusCodes.FORBIDDEN).json({
         success: false,
         message: "Forbidden Access",
       });

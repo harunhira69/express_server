@@ -8,8 +8,8 @@
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "esnext",
-     "moduleResolution": "bundler",
     "target": "esnext",
+     "moduleResolution": "bundler",
     "types": ["node"],
     // For nodejs:
     // "lib": ["esnext"],
@@ -41,5 +41,8 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": []
+
 }

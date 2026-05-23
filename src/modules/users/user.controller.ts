@@ -11,7 +11,7 @@ const createUser = asyncHandler(
 
  const {name,email,password,role} = req.body; 
     
-if(!name || !email|| password){
+if(!name || !email|| !password){
     const error = new Error ("name, email and password are required") as AppError;
     error.statusCode = StatusCodes.BAD_REQUEST;
     throw error

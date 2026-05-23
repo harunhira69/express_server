@@ -108,6 +108,7 @@ const getALlIssue = asyncHandler(
       )
       return res.status(StatusCodes.OK).json({
         success:true,
+         message: 'Issue retrieved successfully',
         data:result,
       })
   }

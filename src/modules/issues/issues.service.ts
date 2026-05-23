@@ -1,7 +1,7 @@
 import { pool } from "../../db";
-import type { CreateIssue } from "./issues.type";
-i
+import { type Issue, type CreateIssue, type IssueResponse, type IssueStatus, type IssueType, type Reporter } from "./issues.type";
 
+// create issue
 const createIssueIntoDB = async(payload:CreateIssue)=>{
 
     const {title,description,type,reporter_id} =payload;
@@ -14,6 +14,73 @@ const createIssueIntoDB = async(payload:CreateIssue)=>{
         return result.rows[0]
 
 
+}
+
+// allissue from db by sort
+
+const getAllissueFromDB = async(
+    sort:"newest"|"oldest" = "newest",
+    type?:IssueType,
+    status?:IssueStatus
+):Promise<IssueResponse[]>=>{
+
+let query = `
+SELECT * FROM issues
+`;
+
+const values:(string|number)[]=[];
+
+const condition:string[] = [];
+
+if(type){
+    values.push(type);
+    condition.push(`type=$${values.length}`);
+
+
+}
+
+if(status){
+    values.push(status);
+    condition.push(`status = $${values.length}`);
+}
+
+if(condition.length){
+   query += ` WHERE ` + condition.join(" AND ");
+}
+
+query += sort ==='oldest'?`ORDER BY created_at ASC`:`ORDER BY created_at DESC`
+
+const {rows:issues} = await pool.query<Issue>(query,values)
+
+const reporterId = [...new Set(issues.map((i)=>i.reporter_id))];
+
+const reporterMap : Record<number,Reporter> = {};
+
+if(reporterId.length>0){
+    const placeholder = reporterId.map((_,i)=>`$${i+1}`).join(",");
+
+    const {rows:users} = await pool.query<Reporter>(
+        `
+        SELECT id,name,role FROM users WHERE id IN (${placeholder})
+        `,reporterId
+
+    );
+
+    for(const user of users){
+        reporterMap[user.id] = user;
+    }
+}
+
+return issues.map((issue) => ({
+  id: issue.id,
+  title: issue.title,
+  description: issue.description,
+  type: issue.type,
+  status: issue.status,
+  reporter: reporterMap[issue.reporter_id] || null,
+  created_at: issue.created_at,
+  updated_at: issue.updated_at,
+}));
 }
 
 // get single issues by id
@@ -92,5 +159,6 @@ export const issueService = {
     updateIssueIntoDb,
     deleteIssueIntoDB,
     getIssueRowFromDB,
+    getAllissueFromDB
 
 }

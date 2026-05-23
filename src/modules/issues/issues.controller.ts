@@ -3,6 +3,7 @@ import { issueService } from "./issues.service";
 import asyncHandler from "../../utility/asyncHandler";
 import type { AppError} from "../../types";
 import { StatusCodes } from "http-status-codes";
+import type { IssueResponse, IssueStatus, IssueType } from "./issues.type";
 
 // create isssue
 const issueController =asyncHandler(
@@ -78,11 +79,13 @@ const reporter_id = req.user.id;
 // get issu by short,type
 const getALlIssue = asyncHandler(
   async(req:Request,res:Response)=>{
-    const {sort="newest",type,status} = req.params as {
-      sort?:string,
-      type?:string,
-      status?:string
+    const {sort="newest",type,status} = req.query as {
+      sort?:"newest"|"oldest",
+      type?:IssueType,
+      status?:IssueStatus
     };
+
+    
 
     // validate sort
     if(!['newest','oldest'].includes(sort)){
@@ -97,6 +100,16 @@ const getALlIssue = asyncHandler(
         error.statusCode = StatusCodes.BAD_REQUEST;
         throw error
       }
+
+      const result = await issueService.getAllissueFromDB(
+        sort,
+        type,
+        status
+      )
+      return res.status(StatusCodes.OK).json({
+        success:true,
+        data:result,
+      })
   }
 )
 
@@ -231,5 +244,6 @@ export const userIssueController = {
     getSingleIssue,
     updateIssue,
     deleteIssue,
+    getALlIssue,
 
 }

@@ -6,6 +6,8 @@ import authorize from "../../middleware/authorize";
 const router = Router();
 router.post('/issues',auth, userIssueController.issueController)
 router.get('/issues/:id',userIssueController.getSingleIssue)
+router.get('/issues',userIssueController.getALlIssue)
+
 router.patch('/issues/:id',
 auth,
 authorize("contributor", "maintainer"),
